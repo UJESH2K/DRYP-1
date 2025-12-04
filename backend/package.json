@@ -7,7 +7,7 @@
     "dev": "nodemon server.js",
     "start": "node server.js",
     "lint": "eslint .",
-    "test": "node ../tests/api.test.js"
+    "test": "node tests/api.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "eslint": "^8.44.0",
+    "node-fetch": "^3.3.2",
     "nodemon": "^3.0.1"
   }
 }

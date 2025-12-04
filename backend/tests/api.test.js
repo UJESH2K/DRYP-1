@@ -9,6 +9,7 @@ async function runTests() {
 
   let testUserToken = null;
   let testUserId = null;
+  let testProductId = null;
   const testEmail = `testuser_${Date.now()}@example.com`;
 
   // Test 1: Health Check
@@ -51,16 +52,18 @@ async function runTests() {
     const response = await fetch(`${API_BASE_URL}/api/products`);
     if (response.status !== 200) throw new Error(`Status code: ${response.status}`);
     const data = await response.json();
-    console.log(`✅ Get Products: Passed (Received ${data.length} products)\n`);
+    if (data.length > 0) {
+      testProductId = data[0]._id;
+      console.log(`✅ Get Products: Passed (Received ${data.length} products, using ${testProductId} for next tests)\n`);
+    } else {
+      console.log('✅ Get Products: Passed (No products found)\n');
+    }
   } catch (error) {
     console.error('❌ Get Products: Failed -', error.message, '\n');
   }
   
   // Test 4: Wishlist actions (Authenticated)
-  if (testUserToken) {
-    // Assuming there's at least one product to test with
-    const testProductId = '60d5ecb5c9a7b3a0b4e5d3a5'; // Replace with a real product ID from your test DB if needed
-
+  if (testUserToken && testProductId) {
     try {
         console.log('🧪 4a. Testing Add to Wishlist...');
         const response = await fetch(`${API_BASE_URL}/api/wishlist/${testProductId}`, {
