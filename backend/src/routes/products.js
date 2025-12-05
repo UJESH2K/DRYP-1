@@ -1,6 +1,10 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
 const Product = require('../models/Product');
 const Like = require('../models/Like');
+const Cart = require('../models/Cart');
+const WishlistItem = require('../models/WishlistItem');
 const { protect } = require('../middleware/auth');
 const router = express.Router();
 
@@ -168,7 +172,7 @@ router.put('/:id', protect, async (req, res, next) => {
 });
 
 // @route   DELETE /api/products/:id
-// @desc    Delete a product
+// @desc    Delete a product and all its associated data
 // @access  Private (Vendor only)
 router.delete('/:id', protect, async (req, res, next) => {
   try {
@@ -186,9 +190,35 @@ router.delete('/:id', protect, async (req, res, next) => {
       return res.status(401).json({ message: 'Not authorized to delete this product' });
     }
 
+    const productId = product._id;
+
+    // 1. Delete images from the filesystem
+    if (product.images && product.images.length > 0) {
+      product.images.forEach(imageUrl => {
+        // url is like '/uploads/image-123.jpg', we need the relative path from the project root
+        const imagePath = path.join(__dirname, '..', 'public', imageUrl);
+        fs.unlink(imagePath, (err) => {
+          if (err) {
+            // Log the error but don't block the process. The file might already be gone.
+            console.error(`Failed to delete image: ${imagePath}`, err);
+          }
+        });
+      });
+    }
+
+    // 2. Delete from all carts
+    await Cart.updateMany({}, { $pull: { items: { product: productId } } });
+
+    // 3. Delete from all wishlists
+    await WishlistItem.deleteMany({ product: productId });
+    
+    // 4. Delete all likes for this product
+    await Like.deleteMany({ product: productId });
+
+    // 5. Finally, delete the product itself
     await Product.findByIdAndDelete(req.params.id);
 
-    res.json({ message: 'Product removed' });
+    res.json({ message: 'Product and all associated data have been removed' });
   } catch (error) {
     next(error);
   }

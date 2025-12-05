@@ -44,9 +44,10 @@
 
 ## 📂 Project Structure
 
-The project is a monorepo containing two main directories:
+The project is a monorepo containing three main directories:
 -   `./frontend/`: The React Native/Expo mobile application for customers and vendors.
 -   `./backend/`: The Node.js/Express.js server that provides the REST API.
+-   `./website/`: A Next.js-based marketing and landing page for the project.
 
 ---
 
@@ -86,6 +87,13 @@ JWT_SECRET=your_super_secret_jwt_key
 2.  Install dependencies: `npm install`
 3.  Start the Metro bundler: `npx expo start`
 4.  Scan the QR code with the Expo Go app on your iOS or Android device.
+
+### 4. Website Setup
+
+1.  Navigate to the website directory: `cd website`
+2.  Install dependencies: `npm install`
+3.  Start the development server: `npm run dev`
+    (The website will be available at `http://localhost:3000`)
 
 ---
 

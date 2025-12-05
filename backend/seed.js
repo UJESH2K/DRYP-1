@@ -1,98 +1,92 @@
-
-require('dotenv').config();
+require('dotenv').config({ path: require('path').join(__dirname, '.env') });
 const mongoose = require('mongoose');
 const connectDatabase = require('./src/config/database');
 const Product = require('./src/models/Product');
+const User = require('./src/models/User');
 
-const VENDOR_ID = '691dfd25d9164020524efb23'; // From user log
-const existingImages = [
-  '/uploads/image-1763580295187-730158269.png',
-  '/uploads/image-1763580295587-919170781.png',
-  '/uploads/image-1763580295668-928245632.png',
-  '/uploads/image-1763580295900-146606462.png',
-];
+const VENDOR_ID = '691dfd25d9164020524efb23';
+const PLACEHOLDER_IMAGE = '/uploads/seed-placeholder.jpg';
 
 const sampleProducts = [
   {
-    name: 'Classic Denim Jacket',
-    description: 'A timeless denim jacket for all seasons. Made with 100% organic cotton.',
-    brand: 'Urban Threads',
+    name: 'Casa Denim Jacket',
+    description: 'A timeless denim jacket for all seasons. Made with 100% organic cotton, this jacket features a classic button-front, two chest pockets, and a comfortable fit that layers perfectly over any outfit. A wardrobe staple for a reason.',
+    brand: 'Casa Denim',
     category: 'Jackets',
-    tags: ['Outerwear', 'Denim', 'Casual'],
-    basePrice: 899,
-    stock: 50,
-    images: [existingImages[0], existingImages[1]],
+    tags: ['Outerwear', 'Denim', 'Casual', 'Staple'],
+    basePrice: 129.99,
+    images: [PLACEHOLDER_IMAGE],
     vendor: VENDOR_ID,
     isActive: true,
-  },
-  {
-    name: 'Graphic Print Hoodie',
-    description: 'Comfortable and stylish hoodie with a unique front print.',
-    brand: 'Street Vibe',
-    category: 'Hoodies',
-    tags: ['Streetwear', 'Comfort', 'Printed'],
-    basePrice: 749,
-    stock: 80,
-    images: [existingImages[2], existingImages[3]],
-    vendor: VENDOR_ID,
-    isActive: true,
-  },
-  {
-    name: 'Striped Linen Shirt',
-    description: 'Light and breezy linen shirt, perfect for summer.',
-    brand: 'Breezy Wear',
-    category: 'Shirts',
-    tags: ['Summer', 'Linen', 'Smart Casual'],
-    basePrice: 699,
-    stock: 65,
-    images: [existingImages[1], existingImages[2]],
-    vendor: VENDOR_ID,
-    isActive: true,
-  },
-  {
-    name: 'Cargo Trousers',
-    description: 'Utility-style cargo trousers with multiple pockets.',
-    brand: 'Urban Threads',
-    category: 'Trousers',
-    tags: ['Utility', 'Cargo', 'Streetwear'],
-    basePrice: 999,
-    stock: 40,
-    images: [existingImages[3], existingImages[0]],
-    vendor: VENDOR_ID,
-    isActive: true,
-  },
-  {
-    name: 'Vintage Wash Jeans',
-    description: 'Relaxed fit jeans with a vintage wash effect.',
-    brand: 'Denim Co.',
-    category: 'Jeans',
-    tags: ['Denim', 'Vintage', 'Relaxed Fit'],
-    basePrice: 1199,
     options: [
-      { name: 'Size', values: ['S', 'M', 'L'] },
-      { name: 'Color', values: ['Light Wash', 'Dark Wash'] }
+      { name: 'Size', values: ['S', 'M', 'L', 'XL'] },
+      { name: 'Color', values: ['Classic Blue', 'Washed Black'] }
     ],
     variants: [
-      { options: { Size: 'S', Color: 'Light Wash' }, stock: 10, price: 1199 },
-      { options: { Size: 'M', Color: 'Light Wash' }, stock: 15, price: 1199 },
-      { options: { Size: 'L', Color: 'Light Wash' }, stock: 12, price: 1199 },
-      { options: { Size: 'S', Color: 'Dark Wash' }, stock: 8, price: 1249 },
-      { options: { Size: 'M', Color: 'Dark Wash' }, stock: 18, price: 1249 },
-      { options: { Size: 'L', Color: 'Dark Wash' }, stock: 10, price: 1249 },
+      { options: { Size: 'S', Color: 'Classic Blue' }, stock: 10, price: 129.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'M', Color: 'Classic Blue' }, stock: 15, price: 129.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'L', Color: 'Classic Blue' }, stock: 12, price: 129.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'XL', Color: 'Classic Blue' }, stock: 8, price: 129.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'S', Color: 'Washed Black' }, stock: 8, price: 134.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'M', Color: 'Washed Black' }, stock: 18, price: 134.99, images: [PLACEHOLDER_IMAGE] },
+      { options: { Size: 'L', Color: 'Washed Black' }, stock: 10, price: 134.99, images: [PLACEHOLDER_IMAGE] },
     ],
-    images: [existingImages[0], existingImages[3], existingImages[1]],
-    vendor: VENDOR_ID,
-    isActive: true,
   },
   {
-    name: 'Leather Biker Jacket',
-    description: 'Classic biker jacket made from high-quality faux leather.',
-    brand: 'Street Vibe',
-    category: 'Jackets',
-    tags: ['Leather', 'Biker', 'Outerwear'],
-    basePrice: 2499,
-    stock: 25,
-    images: [existingImages[2]],
+    name: 'Zenith Crewneck Tee',
+    description: 'The perfect crewneck t-shirt, crafted from ultra-soft pima cotton. Breathable, durable, and designed for a modern, tailored fit. Available in a range of essential colors.',
+    brand: 'Zenith',
+    category: 'T-Shirts',
+    tags: ['Basics', 'Pima Cotton', 'Essential'],
+    basePrice: 45.00,
+    images: [PLACEHOLDER_IMAGE],
+    vendor: VENDOR_ID,
+    isActive: true,
+    options: [
+      { name: 'Size', values: ['S', 'M', 'L'] },
+      { name: 'Color', values: ['Optic White', 'Heather Grey', 'Charcoal'] }
+    ],
+    variants: [
+      { options: { Size: 'S', Color: 'Optic White' }, stock: 30, price: 45.00 },
+      { options: { Size: 'M', Color: 'Optic White' }, stock: 40, price: 45.00 },
+      { options: { Size: 'L', Color: 'Optic White' }, stock: 35, price: 45.00 },
+      { options: { Size: 'M', Color: 'Heather Grey' }, stock: 25, price: 45.00 },
+      { options: { Size: 'L', Color: 'Heather Grey' }, stock: 22, price: 45.00 },
+      { options: { Size: 'M', Color: 'Charcoal' }, stock: 28, price: 45.00 },
+    ],
+  },
+  {
+    name: 'Nomad Tech Chinos',
+    description: 'Versatile chinos made with a four-way stretch, water-resistant fabric. Perfect for travel, commuting, or a smart-casual look. Features a secure zip pocket.',
+    brand: 'AER Travel',
+    category: 'Pants',
+    tags: ['Performance', 'Travel', 'Chinos', 'Water-Resistant'],
+    basePrice: 98.00,
+    images: [PLACEHOLDER_IMAGE],
+    vendor: VENDOR_ID,
+    isActive: true,
+    options: [
+      { name: 'Waist', values: ['30', '32', '34'] },
+      { name: 'Color', values: ['Khaki', 'Navy Blue'] }
+    ],
+    variants: [
+      { options: { Waist: '30', Color: 'Khaki' }, stock: 15, price: 98.00 },
+      { options: { Waist: '32', Color: 'Khaki' }, stock: 20, price: 98.00 },
+      { options: { Waist: '34', Color: 'Khaki' }, stock: 18, price: 98.00 },
+      { options: { Waist: '32', Color: 'Navy Blue' }, stock: 17, price: 98.00 },
+      { options: { Waist: '34', Color: 'Navy Blue' }, stock: 15, price: 98.00 },
+    ],
+  },
+  {
+    name: 'Artisan Leather Belt',
+    description: 'A handsome and durable belt crafted from full-grain Italian leather that will develop a unique patina over time. Finished with a solid brass buckle.',
+    brand: 'Heritage Craft',
+    category: 'Accessories',
+    tags: ['Leather', 'Belt', 'Handmade'],
+    basePrice: 75.50,
+    // This is a simple product with no variants
+    stock: 50,
+    images: [PLACEHOLDER_IMAGE],
     vendor: VENDOR_ID,
     isActive: true,
   }
@@ -100,15 +94,27 @@ const sampleProducts = [
 
 const seedDB = async () => {
   try {
-    await connectDatabase(process.env.MONGO_URI);
+    const mongoURI = process.env.MONGO_URI;
+    if (!mongoURI) {
+      throw new Error("MONGO_URI not found in .env file");
+    }
+    await connectDatabase(mongoURI);
     console.log('Database connected for seeding...');
 
+    const vendor = await User.findById(VENDOR_ID);
+    if (!vendor) {
+      throw new Error(`Vendor with ID "${VENDOR_ID}" not found.`);
+    }
+    if (vendor.role !== 'vendor') {
+      throw new Error(`User with ID "${VENDOR_ID}" is not a vendor.`);
+    }
+
     // Clear existing products for this vendor to avoid duplicates
-    await Product.deleteMany({ vendor: VENDOR_ID });
-    console.log('Cleared old products for the vendor.');
+    const { deletedCount } = await Product.deleteMany({ vendor: VENDOR_ID });
+    console.log(`Cleared ${deletedCount} old products for vendor ${vendor.name}.`);
 
     await Product.insertMany(sampleProducts);
-    console.log(`${sampleProducts.length} products have been successfully created!`);
+    console.log(`${sampleProducts.length} products have been successfully created for vendor ${vendor.name}!`);
 
   } catch (error) {
     console.error('Error seeding the database:', error);
