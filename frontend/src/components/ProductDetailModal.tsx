@@ -23,7 +23,7 @@ import CustomAlert from './common/CustomAlert';
 import { Product, ProductOption, ProductVariant } from '../types';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
-const IMAGE_HEIGHT = SCREEN_HEIGHT * 0.4;
+const IMAGE_HEIGHT = SCREEN_HEIGHT * 0.6;
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL || 'http://192.168.1.9:5000';
 
 const generateCartId = (productId: string, options?: { [key: string]: string }) => {
