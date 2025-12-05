@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { View, StyleSheet, StatusBar, Pressable, Animated } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, Pressable, Animated } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
 import { useHomeScreenData } from '../../src/hooks/useHomeScreenData';
 import { useSwipeAnimations } from '../../src/hooks/useSwipeAnimations';
 import { Header } from '../../src/components/home/Header';
@@ -41,12 +40,29 @@ export default function HomeScreen() {
   const undoOpacity = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
-    Animated.timing(undoOpacity, {
-      toValue: swipeAnimations.canUndo ? 1 : 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-  }, [swipeAnimations.canUndo]);
+    let timer;
+    if (swipeAnimations.canUndo) {
+      Animated.timing(undoOpacity, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+      timer = setTimeout(() => {
+        Animated.timing(undoOpacity, {
+          toValue: 0,
+          duration: 300,
+          useNativeDriver: true,
+        }).start();
+      }, 3000); // 3 seconds
+    } else {
+      Animated.timing(undoOpacity, {
+        toValue: 0,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    }
+    return () => clearTimeout(timer);
+  }, [swipeAnimations.canUndo, swipeAnimations.currentIndex]);
 
   if (loading) {
     return <AnimatedLoadingScreen text="Finding your next look..." />;
@@ -106,7 +122,7 @@ export default function HomeScreen() {
             onPress={swipeAnimations.undoSwipe}
             disabled={!swipeAnimations.canUndo}
           >
-            <Ionicons name="refresh" size={28} color="#007AFF" />
+            <Text style={styles.undoButtonText}>Undo</Text>
           </Pressable>
         </Animated.View>
       </SafeAreaView>
@@ -131,24 +147,25 @@ const styles = StyleSheet.create({
     flex: 1, 
     alignItems: 'center', 
     justifyContent: 'center',
-    marginBottom: 20, // Make space for the undo button if it were at the bottom
   },
   undoContainer: {
-    position: 'absolute',
-    bottom: 90, // Position it above the tab bar
     alignSelf: 'center',
+    marginBottom: 10,
   },
   undoButton: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
     backgroundColor: 'white',
-    justifyContent: 'center',
-    alignItems: 'center',
+    borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 3,
   },
+  undoButtonText: {
+    fontFamily: 'Zaloga',
+    fontSize: 16,
+    color: '#007AFF',
+  }
 });

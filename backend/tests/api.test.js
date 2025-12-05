@@ -89,6 +89,33 @@ async function runTests() {
     }
   }
 
+  // Test 5: Like/Unlike actions (Authenticated)
+  if (testUserToken && testProductId) {
+    try {
+        console.log('🧪 5a. Testing Like a Product...');
+        const response = await fetch(`${API_BASE_URL}/api/likes/${testProductId}`, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${testUserToken}` },
+        });
+        if (response.status !== 201) throw new Error(`Status code: ${response.status}`);
+        console.log('✅ Like a Product: Passed\n');
+    } catch(error) {
+        console.error('❌ Like a Product: Failed -', error.message, '\n');
+    }
+
+    try {
+        console.log('🧪 5b. Testing Unlike a Product...');
+        const response = await fetch(`${API_BASE_URL}/api/likes/${testProductId}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${testUserToken}` },
+        });
+        if (response.status !== 200) throw new Error(`Status code: ${response.status}`);
+        console.log('✅ Unlike a Product: Passed\n');
+    } catch(error) {
+        console.error('❌ Unlike a Product: Failed -', error.message, '\n');
+    }
+  }
+
 
   console.log('🏁 All tests complete.');
 }
