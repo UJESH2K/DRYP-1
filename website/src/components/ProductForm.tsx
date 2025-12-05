@@ -43,7 +43,7 @@ const TextArea = ({ label, name, value, onChange, placeholder, disabled = false 
           value={value}
           onChange={onChange}
           rows={4}
-          className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-lg disabled:bg-ray-200 p-3"
+          className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500 sm:text-lg disabled:bg-gray-200 p-3"
           placeholder={placeholder}
           disabled={disabled}
         />
@@ -362,7 +362,7 @@ const ProductForm = React.forwardRef(({ onSave, product }: { onSave: () => void;
                     <div className="mt-4 flex flex-wrap gap-4">
                         {variant.images.map((imgUrl, imgIndex) => (
                             <div key={imgIndex} className="relative">
-                                <Image src={`${API_BASE_URL}${imgUrl}`} alt="product preview" fill className="rounded-xl object-cover shadow-md" sizes="96px" />
+                                <Image src={imgUrl} alt="product preview" fill className="rounded-xl object-cover shadow-md" sizes="96px" />
                                 <button type="button" onClick={() => handleRemoveImage(index, imgIndex)} className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold" disabled={isSubmitting}>&times;</button>
                             </div>
                         ))}
