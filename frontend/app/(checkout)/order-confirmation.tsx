@@ -43,7 +43,7 @@ export default function OrderConfirmationScreen() {
         <Text style={styles.itemDetailsText}>Brand: {item.product.brand}</Text>
         <Text style={styles.itemDetailsText}>Qty: {item.quantity}</Text>
       </View>
-      <Text style={styles.itemPrice}>${item.price.toFixed(2)}</Text>
+      <Text style={styles.itemPrice}>${(item.price || 0).toFixed(2)}</Text>
     </View>
   );
 
@@ -91,19 +91,19 @@ export default function OrderConfirmationScreen() {
           <View style={styles.summaryContainer}>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Subtotal</Text>
-              <Text style={styles.summaryValue}>${order.subtotal.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${(order.subtotal || 0).toFixed(2)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Shipping</Text>
-              <Text style={styles.summaryValue}>${order.shippingCost.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${(order.shippingCost || 0).toFixed(2)}</Text>
             </View>
             <View style={styles.summaryRow}>
               <Text style={styles.summaryLabel}>Tax</Text>
-              <Text style={styles.summaryValue}>${order.tax.toFixed(2)}</Text>
+              <Text style={styles.summaryValue}>${(order.tax || 0).toFixed(2)}</Text>
             </View>
             <View style={[styles.summaryRow, styles.totalRow]}>
               <Text style={styles.totalLabel}>Total</Text>
-              <Text style={styles.totalValue}>${order.totalAmount.toFixed(2)}</Text>
+              <Text style={styles.totalValue}>${(order.totalAmount || 0).toFixed(2)}</Text>
             </View>
           </View>
         </View>

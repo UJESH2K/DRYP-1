@@ -129,13 +129,17 @@ export default function CartScreen() {
         ) : (
           <>
             <ScrollView style={styles.itemList}>
-              {items.map((item) => (
-                              <Pressable key={item.id} onPress={() => {
-                                setSelectedProductId(item.productId);
-                                setIsModalVisible(true);
-                              }}>
-                                <View style={styles.itemCard}>
-                                  <Image source={{ uri: item.image }} style={styles.itemImage} />
+              {items.map((item) => {
+                // Defensive coding: The image could be a string URL or an object {url: '...'} from older cart states.
+                const imageUrl = typeof item.image === 'string' ? item.image : (item.image as any)?.url;
+
+                return (
+                  <Pressable key={item.id} onPress={() => {
+                    setSelectedProductId(item.productId);
+                    setIsModalVisible(true);
+                  }}>
+                    <View style={styles.itemCard}>
+                      <Image source={{ uri: imageUrl }} style={styles.itemImage} />
                                   <View style={styles.itemContent}>
                                     <View style={styles.itemHeader}>
                       <View style={styles.itemInfo}>
@@ -191,7 +195,8 @@ export default function CartScreen() {
                   </View>
                 </View>
               </Pressable>
-            ))}
+              );
+            })}
           </ScrollView>
           <View style={styles.summaryContainer}>
             <View style={styles.summaryRow}>

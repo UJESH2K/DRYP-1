@@ -130,7 +130,7 @@ export default function ProductDetailScreen() {
                 productId: product._id,
                 title: product.name,
                 brand: product.brand,
-                image: product.images[0]?.url,
+                image: product.images[0]?.url || 'https://via.placeholder.com/150',
                 price: selectedVariant ? selectedVariant.price : product.basePrice,
                 options: hasVariants ? selectedOptions : undefined,
                 quantity: 1,

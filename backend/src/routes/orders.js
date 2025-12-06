@@ -40,6 +40,12 @@ router.post('/', protect, async (req, res, next) => {
     for (const vendorId of Object.keys(ordersByVendor)) {
         const vendorItems = ordersByVendor[vendorId];
         const totalAmount = vendorItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        // TODO: Implement actual tax and shipping logic
+        const subtotal = totalAmount;
+        const tax = 0;
+        const shippingCost = 0;
+
         const order = new Order({
             user: userId,
             guestId: guestId,
@@ -50,7 +56,10 @@ router.post('/', protect, async (req, res, next) => {
                 size: item.options?.size,
                 vendor: productVendorMap[item.productId],
             })),
-            totalAmount,
+            subtotal,
+            tax,
+            shippingCost,
+            totalAmount: subtotal + tax + shippingCost, // Recalculate totalAmount with tax and shipping
             shippingAddress,
             status: 'pending',
             orderNumber: `DRYP-${Date.now()}-${createdOrders.length + 1}`
