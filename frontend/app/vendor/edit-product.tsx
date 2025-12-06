@@ -49,6 +49,18 @@ export default function EditProductScreen() {
       setIsLoading(true);
       const data = await apiCall(`/api/products/${id}`);
       if (data && !data.message) {
+        // Sanitize legacy image data which might be strings instead of objects
+        if (data.images && data.images.length > 0 && typeof data.images[0] === 'string') {
+          data.images = data.images.map(url => ({ url: url, publicId: url })); // Use URL as a fallback publicId
+        }
+        if (data.variants) {
+          data.variants.forEach(v => {
+            if (v.images && v.images.length > 0 && typeof v.images[0] === 'string') {
+              v.images = v.images.map(url => ({ url: url, publicId: url }));
+            }
+          });
+        }
+        
         // Convert tags array back to a comma-separated string for the input
         data.tags = data.tags.join(', ');
         setProduct(data);
