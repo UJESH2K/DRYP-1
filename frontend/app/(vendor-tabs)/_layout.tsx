@@ -22,6 +22,7 @@ function TabBarIcon({ name, focused }: { name: string; focused: boolean }) {
 }
 
 export default function VendorTabLayout() {
+  console.log('Rendering VendorTabLayout');
   return (
     <Tabs
       screenOptions={{

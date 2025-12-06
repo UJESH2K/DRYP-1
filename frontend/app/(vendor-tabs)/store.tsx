@@ -1,39 +1,39 @@
-import React, { useState, useCallback } from 'react';
+import React from 'react';
+import { useFocusEffect } from 'expo-router';
+import { apiCall } from '../../src/lib/api';
 import {
   View,
   Text,
   StyleSheet,
   ScrollView,
-  TextInput,
   Pressable,
-  ActivityIndicator,
+  StatusBar,
   Alert,
+  ActivityIndicator,
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useFocusEffect } from 'expo-router';
 import { useCustomRouter } from '../../src/hooks/useCustomRouter';
-import { VendorHeader } from '../../src/components/vendor/Header';
-import { useAuthStore } from '../../src/state/auth';
-import { apiCall } from '../../src/lib/api';
 import { Ionicons } from '@expo/vector-icons';
+import { useAuthStore } from '../../src/state/auth';
+import { useToastStore } from '../../src/state/toast';
+import Section from '../../src/components/common/Section';
+import Row from '../../src/components/common/Row';
 
-export default function StoreProfileScreen() {
-  const { user, logout } = useAuthStore();
-  const [vendor, setVendor] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({});
+export default function VendorStoreScreen() {
   const router = useCustomRouter();
+  const { user, logout } = useAuthStore();
+  const showToast = useToastStore((state) => state.showToast);
+  const [vendor, setVendor] = React.useState(null);
+  const [isLoading, setIsLoading] = React.useState(true);
 
-  const fetchVendorProfile = useCallback(async () => {
+  const fetchVendorProfile = React.useCallback(async () => {
     if (user?.role !== 'vendor') return;
     setIsLoading(true);
     try {
       const data = await apiCall('/api/vendors/me');
       if (data && !data.message) {
         setVendor(data);
-        setFormData(data);
       } else {
         throw new Error(data.message || 'Failed to fetch store profile');
       }
@@ -45,92 +45,43 @@ export default function StoreProfileScreen() {
   }, [user]);
 
   useFocusEffect(
-    useCallback(() => {
+    React.useCallback(() => {
       fetchVendorProfile();
     }, [fetchVendorProfile])
   );
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleLogout = () => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: async () => {
+          await logout();
+          router.replace('/login');
+          showToast('You have been logged out successfully.', 'success');
+        },
+      },
+    ]);
   };
   
-  const handleAddressChange = (field, value) => {
-    setFormData(prev => ({ ...prev, address: { ...prev.address, [field]: value } }));
-  };
-
-  const handleSaveChanges = async () => {
-    setIsLoading(true);
-    try {
-      const updatedVendor = await apiCall('/api/vendors/me', {
-        method: 'PUT',
-        body: JSON.stringify(formData),
-      });
-      if (updatedVendor && !updatedVendor.message) {
-        setVendor(updatedVendor);
-        setIsEditing(false);
-        Alert.alert('Success', 'Profile updated successfully!');
-      } else {
-        throw new Error(updatedVendor.message || 'Failed to update profile');
-      }
-    } catch (error) {
-      Alert.alert('Error', error.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const handleLogout = () => {
-    logout();
-    router.replace('/login');
-  };
-
-  if (isLoading && !vendor) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" style={styles.centered} />
-      </SafeAreaView>
-    );
-  }
-
-  if (!vendor) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <View style={styles.centered}>
-          <Text>Could not load your store profile.</Text>
-        </View>
-      </SafeAreaView>
-    );
-  }
+  const storeItems = [
+    { id: 'profile', title: 'Edit Store Profile', icon: <Ionicons name="storefront-outline" size={22} color="#333" />, onPress: () => router.push('/vendor/profile') },
+    { id: 'settings', title: 'Settings', icon: <Ionicons name="settings-outline" size={22} color="#333" />, onPress: () => router.push('/vendor/settings') },
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
-      <VendorHeader title={isEditing ? 'Edit Profile' : 'Store Profile'} />
-      <ScrollView contentContainerStyle={styles.content}>
-        {isEditing ? (
-          // EDITING VIEW
-          <View style={styles.form}>
-            <Text style={styles.label}>Store Name</Text>
-            <TextInput style={styles.input} value={formData.name} onChangeText={(v) => handleInputChange('name', v)} />
-            <Text style={styles.label}>Description</Text>
-            <TextInput style={[styles.input, styles.textArea]} value={formData.description} onChangeText={(v) => handleInputChange('description', v)} multiline />
-            <Text style={styles.label}>Phone</Text>
-            <TextInput style={styles.input} value={formData.phone} onChangeText={(v) => handleInputChange('phone', v)} keyboardType="phone-pad" />
-            <Text style={styles.label}>Website</Text>
-            <TextInput style={styles.input} value={formData.website} onChangeText={(v) => handleInputChange('website', v)} keyboardType="url" />
-
-            <Text style={styles.subTitle}>Address</Text>
-            <TextInput style={styles.input} placeholder="Street" value={formData.address?.street} onChangeText={(v) => handleAddressChange('street', v)} />
-            <TextInput style={styles.input} placeholder="City" value={formData.address?.city} onChangeText={(v) => handleAddressChange('city', v)} />
-            <TextInput style={styles.input} placeholder="State" value={formData.address?.state} onChangeText={(v) => handleAddressChange('state', v)} />
-            <TextInput style={styles.input} placeholder="ZIP Code" value={formData.address?.zipCode} onChangeText={(v) => handleAddressChange('zipCode', v)} />
-            <TextInput style={styles.input} placeholder="Country" value={formData.address?.country} onChangeText={(v) => handleAddressChange('country', v)} />
-
-            <Pressable style={styles.saveButton} onPress={handleSaveChanges} disabled={isLoading}>
-              {isLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.saveButtonText}>Save Changes</Text>}
-            </Pressable>
+      <StatusBar barStyle="dark-content" />
+        <View style={styles.header}>
+            <Text style={styles.headerTitle}>Store</Text>
+        </View>
+      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        {isLoading ? (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" />
           </View>
         ) : (
-          // DISPLAY VIEW
           <View style={styles.profileDetails}>
             <Image
               style={styles.logo}
@@ -152,25 +103,51 @@ export default function StoreProfileScreen() {
             </View>
           </View>
         )}
-        <Pressable style={styles.logoutButton} onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={24} color="white" />
-          <Text style={styles.logoutButtonText}>Logout</Text>
-        </Pressable>
+
+        <Section header="Manage Store">
+          {storeItems.map((item, index) => <Row key={item.id} {...item} isFirst={index === 0} isLast={index === storeItems.length - 1} />)}
+        </Section>
+        
+        <Section>
+            <Row title="Logout" onPress={handleLogout} isFirst isLast isDestructive />
+        </Section>
+
+        <View style={{ height: 40 }} />
       </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#f5f5f5' },
-  centered: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  editButton: {
-    backgroundColor: '#1a1a1a',
-    borderRadius: 20,
-    padding: 8,
+  container: {
+    flex: 1,
+    backgroundColor: '#f2f2f7',
   },
-  content: { padding: 20 },
-  profileDetails: { alignItems: 'center' },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 150,
+  },
+  header: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    backgroundColor: '#ffffff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#e0e0e0',
+  },
+  headerTitle: {
+    fontFamily: 'Zaloga',
+    fontSize: 28,
+    color: '#000',
+  },
+  scrollView: {
+    flex: 1,
+  },
+  profileDetails: { 
+    alignItems: 'center',
+    padding: 20,
+  },
   logo: {
     width: 120,
     height: 120,
@@ -178,62 +155,27 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     backgroundColor: '#e0e0e0',
   },
-  vendorName: { fontSize: 24, fontWeight: 'bold', marginBottom: 8 },
-  vendorDescription: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 24 },
+  vendorName: { 
+    fontSize: 24, 
+    marginBottom: 8,
+    fontFamily: 'Zaloga',
+  },
+  vendorDescription: { 
+    fontSize: 16, 
+    color: '#666', 
+    textAlign: 'center', 
+    marginBottom: 24,
+    fontFamily: 'Zaloga',
+  },
   infoRow: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 12,
     alignSelf: 'flex-start',
   },
-  infoText: { fontSize: 16, marginLeft: 12 },
-  form: { paddingBottom: 50 },
-  label: { fontSize: 16, fontWeight: '600', marginBottom: 8, color: '#333' },
-  input: {
-    backgroundColor: '#fff',
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
-  },
-  subTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: 16,
-    marginBottom: 12,
-    borderTopWidth: 1,
-    borderTopColor: '#e0e0e0',
-    paddingTop: 16,
-  },
-  saveButton: {
-    backgroundColor: '#10B981',
-    padding: 16,
-    borderRadius: 8,
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  saveButtonText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  logoutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#dc3545', // Red color for logout
-    padding: 12,
-    borderRadius: 8,
-    marginTop: 30,
-    width: '80%',
-    alignSelf: 'center',
-  },
-  logoutButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginLeft: 10,
+  infoText: { 
+    fontSize: 16, 
+    marginLeft: 12,
+    fontFamily: 'Zaloga',
   },
 });

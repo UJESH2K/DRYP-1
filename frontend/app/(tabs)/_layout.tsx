@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import CartBadge from '../../src/components/CartBadge';
 
 export default function TabLayout() {
+  console.log('Rendering TabLayout');
   const { push, goBack } = useNavigationStore();
   const router = useCustomRouter();
   const pathname = usePathname();
@@ -89,6 +90,7 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={24} color={color} />,
         }}
       />
+
     </Tabs>
   );
 }

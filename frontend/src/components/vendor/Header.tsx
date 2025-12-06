@@ -17,9 +17,6 @@ export function VendorHeader({ title }: { title: string }) {
   return (
     <View style={styles.header}>
       <Text style={styles.headerTitle}>{title}</Text>
-      <Pressable onPress={handleLogout} style={styles.logoutButton}>
-        <Ionicons name="log-out-outline" size={28} color="#000" />
-      </Pressable>
     </View>
   );
 }

@@ -13,27 +13,8 @@ import { useCustomRouter } from '../../src/hooks/useCustomRouter';
 import { Ionicons } from '@expo/vector-icons';
 import { useAuthStore } from '../../src/state/auth';
 import { useToastStore } from '../../src/state/toast';
-
-const Section = ({ header, children, footer }) => (
-  <View style={styles.sectionContainer}>
-    {header && <Text style={styles.sectionHeader}>{header.toUpperCase()}</Text>}
-    <View style={styles.sectionBody}>
-      {children}
-    </View>
-    {footer && <Text style={styles.sectionFooter}>{footer}</Text>}
-  </View>
-);
-
-const Row = ({ title, icon, onPress, isFirst, isLast, isDestructive = false }) => (
-  <Pressable onPress={onPress} style={({ pressed }) => [styles.row, isLast && { borderBottomWidth: 0 }, pressed && styles.rowPressed]}>
-    <View style={styles.rowLeft}>
-      {icon && <View style={styles.rowIcon}>{icon}</View>}
-      <Text style={[styles.rowLabel, isDestructive && styles.destructiveText]}>{title}</Text>
-    </View>
-    {!isDestructive && <Ionicons name="chevron-forward" size={20} color="#c7c7cc" />}
-  </Pressable>
-);
-
+import Section from '../../src/components/common/Section';
+import Row from '../../src/components/common/Row';
 
 export default function ProfileScreen() {
   const router = useCustomRouter();

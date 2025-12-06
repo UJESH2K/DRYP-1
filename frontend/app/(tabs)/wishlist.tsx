@@ -39,7 +39,7 @@ export default function WishlistScreen() {
     try {
       const likedProducts = await apiCall('/api/wishlist');
       if (Array.isArray(likedProducts)) {
-        setWishlist(likedProducts);
+        setWishlist(likedProducts.filter(p => p));
       } else {
         setWishlist([]);
       }

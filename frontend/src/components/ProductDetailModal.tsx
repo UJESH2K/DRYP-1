@@ -245,6 +245,14 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, isVi
     );
   };
 
+  if (!product) {
+    return (
+      <Animated.View style={[styles.detailsView, { transform: [{ translateY: detailsPosition }] }]}>
+        <AnimatedLoadingScreen text="Loading product details..." />
+      </Animated.View>
+    );
+  }
+
   const colorOption = product.options?.find((opt: ProductOption) => opt.name === 'Color');
   const currentOptions = selectedColor ? { Color: selectedColor } : undefined;
   const cartId = generateCartId(product._id, currentOptions);
