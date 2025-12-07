@@ -156,26 +156,31 @@ router.put('/:id/status', protect, async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    const order = await Order.findById(req.params.id).select('+tax +shippingCost +subtotal');
+    // First, find the order to check for vendor association
+    const order = await Order.findById(req.params.id);
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
 
-    // Check if the vendor is associated with this order
     const isVendorAssociated = order.items.some(item => item.vendor.toString() === req.user._id.toString());
     if (!isVendorAssociated) {
       return res.status(403).json({ message: 'Forbidden: You are not associated with this order' });
     }
 
-    order.status = status;
-    const updatedOrder = await order.save();
-    
-    // Optionally, you can repopulate the fields if you need to send the full order back
-    const populatedOrder = await Order.findById(updatedOrder._id)
-      .populate('user', 'name email')
-      .populate('items.product', 'name sku');
+    // Now, update the order
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: status } },
+      { new: true, runValidators: true }
+    )
+    .populate('user', 'name email')
+    .populate('items.product', 'name sku');
 
-    res.json(populatedOrder);
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found after update' });
+    }
+    
+    res.json(updatedOrder);
   } catch (error) {
     next(error);
   }
