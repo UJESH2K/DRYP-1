@@ -53,7 +53,7 @@ router.post('/', protect, async (req, res, next) => {
                 product: item.productId,
                 quantity: item.quantity,
                 price: item.price,
-                size: item.options?.size,
+                options: item.options,
                 vendor: productVendorMap[item.productId],
             })),
             subtotal,
@@ -156,7 +156,7 @@ router.put('/:id/status', protect, async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    const order = await Order.findById(req.params.id);
+    const order = await Order.findById(req.params.id).select('+tax +shippingCost +subtotal');
     if (!order) {
       return res.status(404).json({ message: 'Order not found' });
     }
