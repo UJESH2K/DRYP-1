@@ -125,11 +125,11 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
       category: '',
       tags: '',
       basePrice: '',
+      stock: '',
     });
 
-    const [variants, setVariants] = useState<VariantState[]>([
-      { color: '', sizes: '', price: '', stock: {}, images: [] },
-    ]);
+    const [productImages, setProductImages] = useState<{ url: string, publicId: string }[]>([]);
+    const [variants, setVariants] = useState<VariantState[]>([]);
 
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -153,6 +153,7 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
         category: '',
         tags: '',
         basePrice: '',
+        stock: '',
       });
       setVariants([
         { color: '', sizes: '', price: '', stock: {}, images: [] },
@@ -205,8 +206,8 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
     };
 
     const handleImageSelect = async (
-      variantIndex: number,
-      e: ChangeEvent<HTMLInputElement>
+      e: ChangeEvent<HTMLInputElement>,
+      variantIndex?: number
     ) => {
       const files = e.target.files ? Array.from(e.target.files) : [];
       if (files.length === 0) return;
@@ -218,11 +219,11 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
           img.onload = () => {
             if (img.width > 736 || img.height > 981) {
               setCroppingImage({
-                variantIndex,
+                variantIndex: variantIndex !== undefined ? variantIndex : -1, // -1 for product
                 image: reader.result as string,
               });
             } else {
-              uploadImage(variantIndex, file);
+              uploadImage(file, variantIndex);
             }
           };
           img.src = reader.result as string;
@@ -242,7 +243,7 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
           type: 'image/jpeg',
         });
 
-        await uploadImage(variantIndex, file);
+        await uploadImage(file, variantIndex === -1 ? undefined : variantIndex);
       } catch (error) {
         console.error('Error processing cropped image:', error);
         alert('Failed to process cropped image');
@@ -252,8 +253,8 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
     };
 
     const uploadImage = async (
-      variantIndex: number,
-      imageFile: File
+      imageFile: File,
+      variantIndex?: number
     ) => {
       if (!token) {
         alert('Authentication required');
@@ -275,9 +276,13 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
 
         const data = await res.json();
         if (res.ok && data.url && data.publicId) {
-          const newVariants = [...variants];
-          newVariants[variantIndex].images.push({ url: data.url, publicId: data.publicId });
-          setVariants(newVariants);
+          if (variantIndex !== undefined) {
+            const newVariants = [...variants];
+            newVariants[variantIndex].images.push({ url: data.url, publicId: data.publicId });
+            setVariants(newVariants);
+          } else {
+            setProductImages(prev => [...prev, { url: data.url, publicId: data.publicId }]);
+          }
         } else {
           throw new Error(data.message || 'Image upload failed');
         }
@@ -289,10 +294,16 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
       }
     };
 
-    const handleRemoveImage = (variantIndex: number, imageIndex: number) => {
-      const newVariants = [...variants];
-      newVariants[variantIndex].images.splice(imageIndex, 1);
-      setVariants(newVariants);
+    const handleRemoveImage = (imageIndex: number, variantIndex?: number) => {
+      if (variantIndex !== undefined) {
+        const newVariants = [...variants];
+        newVariants[variantIndex].images.splice(imageIndex, 1);
+        setVariants(newVariants);
+      } else {
+        const newImages = [...productImages];
+        newImages.splice(imageIndex, 1);
+        setProductImages(newImages);
+      }
     };
 
     const addVariant = () => {
@@ -307,85 +318,177 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
       setVariants(newVariants);
     };
 
-    const handleSubmit = async (e?: React.FormEvent) => {
-      if (e) e.preventDefault();
+        const handleSubmit = async (e?: React.FormEvent) => {
 
-      setIsSubmitting(true);
+          if (e) e.preventDefault();
 
-      const allVariantImages = variants.flatMap((v) => v.images);
+    
 
-      interface ProductData {
-        name: string;
-        description: string;
-        brand: string;
-        category: string;
-        tags: string[];
-        basePrice: number;
-        images: { url: string, publicId: string }[];
-        options: { name: string; values: string[] }[];
-        variants: {
-          options: { Color: string; Size: string };
-          stock: number;
-          price: number;
-          images: { url: string, publicId: string }[];
-        }[];
-      }
+          setIsSubmitting(true);
 
-      const productData: ProductData = {
-        ...formData,
-        basePrice: parseFloat(formData.basePrice) || 0,
-        tags: formData.tags
-          .split(',')
-          .map((t) => t.trim())
-          .filter(Boolean),
-        images: allVariantImages,
-        options: [],
-        variants: [],
-      };
+    
 
-      const allColors = variants
-        .map((v) => v.color)
-        .filter((c) => Boolean(c));
-      const allSizes = [
-        ...new Set(
-          variants.flatMap((v) =>
-            v.sizes
+          interface ProductData {
+
+            name: string;
+
+            description: string;
+
+            brand: string;
+
+            category: string;
+
+            tags: string[];
+
+                        basePrice: number;
+
+                        stock: number;
+
+                        images: { url: string, publicId: string }[];
+
+                        options: { name: string; values: string[] }[];
+
+            variants: {
+
+              options: { Color: string; Size: string };
+
+              stock: number;
+
+              price: number;
+
+              images: { url: string, publicId: string }[];
+
+            }[];
+
+          }
+
+    
+
+          const productData: ProductData = {
+
+            ...formData,
+
+            basePrice: parseFloat(formData.basePrice) || 0,
+
+            stock: parseInt(formData.stock, 10) || 0,
+
+            tags: formData.tags
+
               .split(',')
-              .map((s) => s.trim())
-              .filter(Boolean)
-          )
-        ),
-      ];
 
-      if (allColors.length > 0) {
-        productData.options.push({ name: 'Color', values: allColors });
-      }
-      if (allSizes.length > 0) {
-        productData.options.push({ name: 'Size', values: allSizes });
-      }
+              .map((t) => t.trim())
 
-      variants.forEach((variant) => {
-        const sizes = variant.sizes
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-        sizes.forEach((size) => {
-          const newVariantPayload = {
-            options: { Color: variant.color, Size: size },
-            stock: parseInt(variant.stock[size] || '0', 10) || 0,
-            price: parseFloat(variant.price || formData.basePrice) || 0,
-            images: variant.images,
+              .filter(Boolean),
+
+            images: [],
+
+            options: [],
+
+            variants: [],
+
           };
-          productData.variants.push(newVariantPayload);
-        });
-      });
 
-      const productWithId = product as (Product & { _id?: string });
-      const hasId = productWithId?._id !== undefined;
-      const method = hasId ? 'PUT' : 'POST';
-      const url = hasId
-        ? `${API_BASE_URL}/api/products/${productWithId._id}`
-        : `${API_BASE_URL}/api/products`;
+    
+
+          if (variants.length > 0) {
+
+            const allVariantImages = variants.flatMap((v) => v.images);
+
+            productData.images = allVariantImages;
+
+    
+
+            const allColors = variants
+
+              .map((v) => v.color)
+
+              .filter((c) => Boolean(c));
+
+            const allSizes = [
+
+              ...new Set(
+
+                variants.flatMap((v) =>
+
+                  v.sizes
+
+                    .split(',')
+
+                    .map((s) => s.trim())
+
+                    .filter(Boolean)
+
+                )
+
+              ),
+
+            ];
+
+    
+
+            if (allColors.length > 0) {
+
+              productData.options.push({ name: 'Color', values: allColors });
+
+            }
+
+            if (allSizes.length > 0) {
+
+              productData.options.push({ name: 'Size', values: allSizes });
+
+            }
+
+    
+
+            variants.forEach((variant) => {
+
+              const sizes = variant.sizes
+
+                .split(',')
+
+                .map((s) => s.trim())
+
+                .filter(Boolean);
+
+              sizes.forEach((size) => {
+
+                const newVariantPayload = {
+
+                  options: { Color: variant.color, Size: size },
+
+                  stock: parseInt(variant.stock[size] || '0', 10) || 0,
+
+                  price: parseFloat(variant.price || formData.basePrice) || 0,
+
+                  images: variant.images,
+
+                };
+
+                productData.variants.push(newVariantPayload);
+
+              });
+
+            });
+
+          } else {
+
+            productData.images = productImages;
+
+          }
+
+          
+
+          const productWithId = product as (Product & { _id?: string });
+
+          const hasId = productWithId?._id !== undefined;
+
+          const method = hasId ? 'PUT' : 'POST';
+
+          const url = hasId
+
+            ? `${API_BASE_URL}/api/products/${productWithId._id}`
+
+            : `${API_BASE_URL}/api/products`;
 
       try {
         if (!token) {
@@ -434,6 +537,7 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
             ? product.tags.join(', ')
             : '',
           basePrice: (product.basePrice ?? '').toString(),
+          stock: (product.stock ?? '').toString(),
         });
 
         if (product.variants && product.variants.length > 0) {
@@ -486,13 +590,11 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
             };
           });
 
-          setVariants(formattedVariants.length > 0 ? formattedVariants : [
-            { color: '', sizes: '', price: '', stock: {}, images: [] },
-          ]);
+          setVariants(formattedVariants.length > 0 ? formattedVariants : []);
+          setProductImages([]);
         } else {
-          setVariants([
-            { color: '', sizes: '', price: '', stock: {}, images: [] },
-          ]);
+          setVariants([]);
+          setProductImages(product.images || []);
         }
       }
     }, [product]);
@@ -580,163 +682,232 @@ const ProductForm = React.forwardRef<ProductFormHandle, ProductFormProps>(
                 disabled={isSubmitting}
               />
             </div>
+            {variants.length === 0 && (
+              <div className="sm:col-span-2">
+                <Input
+                  label="Stock"
+                  name="stock"
+                  type="number"
+                  value={formData.stock}
+                  onChange={handleProductChange}
+                  placeholder="0"
+                  disabled={isSubmitting}
+                />
+              </div>
+            )}
           </div>
         </div>
 
-        {/* --- SECTION 2: VARIANTS --- */}
-        <div className="space-y-10">
-          {variants.map((variant, index) => (
-            <div
-              key={index}
-              className="bg-white p-8 border border-zinc-200 rounded-xl shadow-sm relative group"
-            >
-              <div className="flex justify-between items-center mb-8 border-b border-zinc-100 pb-4">
-                <h3 className="text-lg font-bold text-zinc-900">
-                  Variant Group {index + 1}
-                </h3>
-                {variants.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={() => removeVariant(index)}
-                    className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center gap-1 transition-colors"
-                  >
-                    <X className="h-4 w-4" /> Remove
-                  </button>
-                )}
-              </div>
-
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-6">
-                <div className="sm:col-span-2">
-                  <Input
-                    label="Color"
-                    name="color"
-                    value={variant.color}
-                    onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
-                    placeholder="e.g., Midnight Blue"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Input
-                    label="Sizes (comma-separated)"
-                    name="sizes"
-                    value={variant.sizes}
-                    onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
-                    placeholder="e.g., S, M, L, XL"
-                    disabled={isSubmitting}
-                  />
-                </div>
-                <div className="sm:col-span-2">
-                  <Input
-                    label="Override Price (Optional)"
-                    name="price"
-                    type="number"
-                    value={variant.price}
-                    onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
-                    placeholder="Leave empty for base price"
-                    disabled={isSubmitting}
-                  />
-                </div>
-
-                {/* STOCK MATRIX */}
-                <div className="sm:col-span-6 bg-zinc-50 p-6 rounded-lg border border-zinc-100">
-                  <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-600 mb-5">
-                    Inventory per Size
-                  </h4>
-                  {variant.sizes ? (
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
-                      {Object.keys(variant.stock).map((size) => (
-                        <div key={size}>
-                          <label className="block text-xs font-bold uppercase text-zinc-500 mb-2">
-                            {size}
-                          </label>
-                          <input
-                            type="number"
-                            value={variant.stock[size]}
-                            onChange={(e) =>
-                              handleStockChange(
-                                index,
-                                size,
-                                e.target.value
-                              )
-                            }
-                            className="w-full rounded-lg border border-zinc-200 px-4 py-2.5 text-base font-semibold text-zinc-900 focus:border-black focus:outline-none"
-                            placeholder="0"
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-base text-zinc-500 italic">
-                      Enter sizes above to configure stock levels.
-                    </p>
+        {/* --- SECTION 2: VARIANTS OR IMAGES --- */}
+        {variants.length > 0 ? (
+          <div className="space-y-10">
+            {variants.map((variant, index) => (
+              <div
+                key={index}
+                className="bg-white p-8 border border-zinc-200 rounded-xl shadow-sm relative group"
+              >
+                <div className="flex justify-between items-center mb-8 border-b border-zinc-100 pb-4">
+                  <h3 className="text-lg font-bold text-zinc-900">
+                    Variant Group {index + 1}
+                  </h3>
+                  {variants.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeVariant(index)}
+                      className="text-red-500 hover:text-red-700 text-sm font-semibold flex items-center gap-1 transition-colors"
+                    >
+                      <X className="h-4 w-4" /> Remove
+                    </button>
                   )}
                 </div>
 
-                {/* IMAGE UPLOAD */}
-                <div className="sm:col-span-6">
-                  <label className="block text-sm font-bold uppercase tracking-wider text-zinc-600 mb-4">
-                    Variant Images
-                  </label>
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-6">
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="Color"
+                      name="color"
+                      value={variant.color}
+                      onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
+                      placeholder="e.g., Midnight Blue"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="Sizes (comma-separated)"
+                      name="sizes"
+                      value={variant.sizes}
+                      onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
+                      placeholder="e.g., S, M, L, XL"
+                      disabled={isSubmitting}
+                    />
+                  </div>
+                  <div className="sm:col-span-2">
+                    <Input
+                      label="Override Price (Optional)"
+                      name="price"
+                      type="number"
+                      value={variant.price}
+                      onChange={(e) => handleVariantChange(index, e as ChangeEvent<HTMLInputElement>)}
+                      placeholder="Leave empty for base price"
+                      disabled={isSubmitting}
+                    />
+                  </div>
 
-                  <div className="grid grid-cols-3 sm:grid-cols-5 gap-5">
-                    {/* Upload Button */}
-                    <label className="flex flex-col items-center justify-center aspect-[3/4] rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 cursor-pointer hover:bg-zinc-100 hover:border-zinc-400 transition-all">
-                      {isUploading ? (
-                        <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
-                      ) : (
-                        <>
-                          <UploadCloud className="h-6 w-6 text-zinc-400 mb-2" />
-                          <span className="text-sm font-bold text-zinc-500 uppercase">
-                            Upload
-                          </span>
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        multiple
-                        onChange={(e) =>
-                          handleImageSelect(index, e)
-                        }
-                        className="hidden"
-                        disabled={isSubmitting || isUploading}
-                        accept="image/*"
-                      />
+                  {/* STOCK MATRIX */}
+                  <div className="sm:col-span-6 bg-zinc-50 p-6 rounded-lg border border-zinc-100">
+                    <h4 className="text-sm font-bold uppercase tracking-wider text-zinc-600 mb-5">
+                      Inventory per Size
+                    </h4>
+                    {variant.sizes ? (
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-5">
+                        {Object.keys(variant.stock).map((size) => (
+                          <div key={size}>
+                            <label className="block text-xs font-bold uppercase text-zinc-500 mb-2">
+                              {size}
+                            </label>
+                            <input
+                              type="number"
+                              value={variant.stock[size]}
+                              onChange={(e) =>
+                                handleStockChange(
+                                  index,
+                                  size,
+                                  e.target.value
+                                )
+                              }
+                              className="w-full rounded-lg border border-zinc-200 px-4 py-2.5 text-base font-semibold text-zinc-900 focus:border-black focus:outline-none"
+                              placeholder="0"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-base text-zinc-500 italic">
+                        Enter sizes above to configure stock levels.
+                      </p>
+                    )}
+                  </div>
+
+                  {/* IMAGE UPLOAD */}
+                  <div className="sm:col-span-6">
+                    <label className="block text-sm font-bold uppercase tracking-wider text-zinc-600 mb-4">
+                      Variant Images
                     </label>
 
-                    {/* Image Previews */}
-                    {variant.images.map((imgUrl, imgIndex) => (
-                      <div
-                        key={`${index}-${imgIndex}`}
-                        className="relative aspect-[3/4] group/img"
-                      >
-                        <Image
-                          src={imgUrl.url}
-                          alt="preview"
-                          fill
-                          unoptimized
-                          sizes="(max-width: 768px) 100px, 150px"
-                          className="rounded-lg object-cover border border-zinc-200"
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleRemoveImage(index, imgIndex)
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-5">
+                      {/* Upload Button */}
+                      <label className="flex flex-col items-center justify-center aspect-[3/4] rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 cursor-pointer hover:bg-zinc-100 hover:border-zinc-400 transition-all">
+                        {isUploading ? (
+                          <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+                        ) : (
+                          <>
+                            <UploadCloud className="h-6 w-6 text-zinc-400 mb-2" />
+                            <span className="text-sm font-bold text-zinc-500 uppercase">
+                              Upload
+                            </span>
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          multiple
+                          onChange={(e) =>
+                            handleImageSelect(e, index)
                           }
-                          className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                          className="hidden"
+                          disabled={isSubmitting || isUploading}
+                          accept="image/*"
+                        />
+                      </label>
+
+                      {/* Image Previews */}
+                      {variant.images.map((imgUrl, imgIndex) => (
+                        <div
+                          key={`${index}-${imgIndex}`}
+                          className="relative aspect-[3/4] group/img"
                         >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </div>
-                    ))}
+                          <Image
+                            src={imgUrl.url}
+                            alt="preview"
+                            fill
+                            unoptimized
+                            sizes="(max-width: 768px) 100px, 150px"
+                            className="rounded-lg object-cover border border-zinc-200"
+                          />
+                          <button
+                            type="button"
+                            onClick={() =>
+                              handleRemoveImage(imgIndex, index)
+                            }
+                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="bg-white p-8 border border-zinc-200 rounded-xl shadow-sm">
+            <h2 className="text-lg font-bold mb-8 text-black border-b border-zinc-100 pb-4">
+              Product Images
+            </h2>
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-5">
+              <label className="flex flex-col items-center justify-center aspect-[3/4] rounded-lg border-2 border-dashed border-zinc-300 bg-zinc-50 cursor-pointer hover:bg-zinc-100 hover:border-zinc-400 transition-all">
+                {isUploading ? (
+                  <Loader2 className="h-6 w-6 animate-spin text-zinc-400" />
+                ) : (
+                  <>
+                    <UploadCloud className="h-6 w-6 text-zinc-400 mb-2" />
+                    <span className="text-sm font-bold text-zinc-500 uppercase">
+                      Upload
+                    </span>
+                  </>
+                )}
+                <input
+                  type="file"
+                  multiple
+                  onChange={(e) =>
+                    handleImageSelect(e)
+                  }
+                  className="hidden"
+                  disabled={isSubmitting || isUploading}
+                  accept="image/*"
+                />
+              </label>
 
+              {productImages.map((imgUrl, imgIndex) => (
+                <div
+                  key={imgIndex}
+                  className="relative aspect-[3/4] group/img"
+                >
+                  <Image
+                    src={imgUrl.url}
+                    alt="preview"
+                    fill
+                    unoptimized
+                    sizes="(max-width: 768px) 100px, 150px"
+                    className="rounded-lg object-cover border border-zinc-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleRemoveImage(imgIndex)
+                    }
+                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-md opacity-0 group-hover/img:opacity-100 transition-opacity hover:bg-red-600"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <button
           type="button"
           onClick={addVariant}
