@@ -2,10 +2,9 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-// 1. IMPORT THE FONT
-import { Playfair_Display } from "next/font/google";
+
+import ShimmerButton from "@/components/common/ShimmerButton";
 import {
-  ArrowRight,
   UploadCloud,
   Box,
   TrendingUp,
@@ -18,7 +17,7 @@ import {
   Zap
 } from "lucide-react";
 
-const playfair = Playfair_Display({ subsets: ["latin"], weight: ["700", "900"] });
+
 
 // --- TYPE DEFINITIONS ---
 interface DynamicLayerCardProps {
@@ -106,56 +105,15 @@ const DynamicLayerCard: React.FC<DynamicLayerCardProps> = ({
   );
 };
 
-// --- SHIMMER BUTTON COMPONENT ---
-const ShimmerButton = ({ text, href, small = false }: { text: string, href: string, small?: boolean }) => (
-  <Link 
-    href={href} 
-    className={`group relative inline-flex items-center justify-center overflow-hidden rounded-full bg-[#0A0A0A] font-bold text-white transition-all duration-300 hover:scale-105 hover:shadow-2xl
-    ${small ? 'h-10 px-6 text-sm' : 'h-14 md:h-16 px-10 md:px-12 text-lg md:text-xl'}
-    `}
-  >
-    <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
-      <div className="relative h-full w-8 bg-white/20" />
-    </div>
-    <span className="flex items-center gap-2">
-      {text} 
-      {!small && <ArrowRight size={20} className="transition-transform group-hover:translate-x-1"/>}
-    </span>
-  </Link>
-);
+
 
 // --- MAIN PAGE COMPONENT ---
 export default function LandingPage() {
   const [activeSlide, setActiveSlide] = useState(0);
   
-  // NAVBAR STATE
-  const [isVisible, setIsVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [scrolled, setScrolled] = useState(false);
-  
   const observerRefs = useRef<(HTMLElement | null)[]>([]);
 
   useEffect(() => {
-    const handleScroll = () => {
-        const currentScrollY = window.scrollY;
-        
-        // Determine if scrolled down enough to add background
-        setScrolled(currentScrollY > 50);
-
-        // Smart Hide/Show Logic
-        if (currentScrollY > lastScrollY && currentScrollY > 100) {
-            // Scrolling DOWN -> Hide Navbar
-            setIsVisible(false);
-        } else {
-            // Scrolling UP -> Show Navbar
-            setIsVisible(true);
-        }
-
-        setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener('scroll', handleScroll);
-
     // Intersection Observer for Sections
     const observerOptions = { root: null, threshold: 0.3 };
     const observerCallback = (entries: IntersectionObserverEntry[]) => {
@@ -170,38 +128,17 @@ export default function LandingPage() {
     observerRefs.current.forEach((el) => { if (el) observer.observe(el); });
 
     return () => {
-        window.removeEventListener('scroll', handleScroll);
         observer.disconnect();
     };
-  }, [lastScrollY]);
+  }, []);
+  
+
 
   return (
     <div className="w-full bg-white font-sans selection:bg-black selection:text-white overflow-x-hidden relative">
       <div className="fixed inset-0 pointer-events-none opacity-[0.04] bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] z-40 mix-blend-overlay"></div>
 
-      {/* SMART NAVBAR 
-         - transform: translateY(-100%) hides it smoothly when scrolling down
-         - includes "Get Started" button as requested
-      */}
-      <nav 
-        className={`fixed top-0 left-0 right-0 z-50 py-4 px-6 md:px-12 flex justify-between items-center transition-all duration-500 transform ${
-            isVisible ? 'translate-y-0' : '-translate-y-full'
-        } ${
-            scrolled ? 'bg-white/80 backdrop-blur-xl border-b border-gray-100/50 shadow-sm' : 'bg-transparent'
-        }`}
-      >
-          {/* Logo - Left */}
-          <Link href="/" className="pointer-events-auto group">
-            <span className={`${playfair.className} text-3xl md:text-4xl font-bold tracking-tighter text-black mix-blend-difference group-hover:opacity-80 transition-opacity`}>
-              DRYP
-            </span>
-          </Link>
-
-          {/* Get Started - Right (Visible on Scroll) */}
-          <div className={`transition-opacity duration-300 ${scrolled ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-             <ShimmerButton text="Get Started" href="/signup" small={true} />
-          </div>
-      </nav>ust 
+ust 
       {/* HERO SECTION */}
       <section 
         data-index={0}

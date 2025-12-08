@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/contexts/AuthContext';
-import { Loader2, Building2, Phone, Globe, Mail, MapPin, Edit3, Camera, X, Save, UploadCloud } from 'lucide-react';
+import { Loader2, Building2, Phone, Globe, Mail, MapPin, Edit3, Camera, X, Save, UploadCloud, LogOut } from 'lucide-react';
 import { Inter } from 'next/font/google';
 
 // --- FONTS ---
@@ -32,7 +32,7 @@ interface Vendor {
 }
 
 const StoreProfilePage = () => {
-  const { token } = useAuth();
+  const { token, logout } = useAuth();
   const [vendor, setVendor] = useState<Vendor | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -275,13 +275,20 @@ const StoreProfilePage = () => {
         </div>
 
         {/* Edit Profile Button */}
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-4 gap-2">
              <button 
                 onClick={() => setIsEditing(true)}
                 className="group flex items-center justify-center gap-2 rounded-full border border-zinc-200 bg-white px-5 py-2.5 text-sm font-bold text-zinc-900 transition-all hover:border-black hover:bg-black hover:text-white hover:shadow-lg"
              >
                 <Edit3 className="h-4 w-4" />
                 <span>Edit Profile</span>
+            </button>
+            <button 
+                onClick={logout}
+                className="group flex items-center justify-center gap-2 rounded-full border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-bold text-red-900 transition-all hover:border-red-600 hover:bg-red-600 hover:text-white hover:shadow-lg"
+             >
+                <LogOut className="h-4 w-4" />
+                <span>Logout</span>
             </button>
         </div>
       </div>

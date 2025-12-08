@@ -86,7 +86,7 @@ export default function OrdersPage() {
                 <h3 className="text-md font-semibold text-zinc-800 mb-2">Items:</h3>
                 <ul className="space-y-2">
                   {order.items.map((item) => (
-                    <li key={item.product?._id || Math.random()} className="flex justify-between items-center">
+                    <li key={item.product?._id || Math.random()} className="flex justify-between items-center text-black">
                       <span>{item.product?.name || 'Product not found'} (x{item.quantity})</span>
                       <span>${(item.price * item.quantity).toFixed(2)}</span>
                     </li>

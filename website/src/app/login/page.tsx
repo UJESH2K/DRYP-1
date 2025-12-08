@@ -96,7 +96,8 @@ export default function LoginPage() {
 
       {/* LEFT SIDE */}
       <div className="relative flex flex-col justify-center px-6 w-full lg:w-[45%] xl:px-24">
-        <div className="absolute top-10 left-8 text-3xl font-black tracking-tight">DRYP</div>
+        <div className="absolute top-10 left-8 text-3xl font-black tracking-tight font-josefin-sans">DRYP</div>
+
 
         <div className="mx-auto w-full max-w-[400px]">
 

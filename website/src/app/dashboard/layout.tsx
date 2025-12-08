@@ -3,14 +3,13 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Inter, Playfair_Display } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
 const inter = Inter({
   subsets: ['latin'],
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-inter'
 });
-const playfair = Playfair_Display({ subsets: ['latin'], weight: ['700', '900'] });
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -30,7 +29,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
           {/* LOGO */}
           <Link href="/dashboard">
-            <span className={`text-4xl font-black tracking-tight text-black ${playfair.className}`}>
+            <span className={`text-4xl font-black tracking-tight text-black font-josefin-sans`}>
               DRYP
             </span>
           </Link>

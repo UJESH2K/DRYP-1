@@ -156,7 +156,7 @@ export default function DashboardPage() {
               View All <ArrowUpRight size={16} />
             </Link>
           </div>
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-zinc-100 h-96 overflow-y-auto overflow-x-hidden scrollbar-hide">
             {recentOrders.length > 0 ? (
               recentOrders.map(order => <RecentOrderItem key={order._id} order={order} />)
             ) : (
@@ -173,7 +173,7 @@ export default function DashboardPage() {
               View Analytics <ArrowUpRight size={16} />
             </Link>
           </div>
-          <div className="divide-y divide-zinc-100">
+          <div className="divide-y divide-zinc-100 h-96 overflow-y-auto overflow-x-hidden scrollbar-hide">
             {analytics?.topSoldProducts?.length > 0 ? (
               analytics.topSoldProducts.map((product, index) => <TopProductItem key={product._id} product={product} index={index} />)
             ) : (

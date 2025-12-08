@@ -16,7 +16,6 @@ const inter = Inter({
   weight: ['400', '500', '600', '700', '800'],
   variable: '--font-inter'
 });
-const playfair = Playfair_Display({ subsets: ['latin'], weight: ['700', '900'] });
 
 // --- MASTER IMAGE LIST (12 Items) ---
 const ALL_IMAGES = [
@@ -107,9 +106,11 @@ export default function SignupPage() {
         <div className="absolute top-10 left-6 lg:left-12 xl:left-24">
           <Link href="/" className="flex items-center gap-2 group">
             <Zap className="h-6 w-6 text-black fill-current group-hover:scale-110 transition-transform" />
-            <span className={`${playfair.className} text-3xl font-bold tracking-tighter text-black`}>DRYP</span>
+            <span className={`font-josefin-sans text-3xl font-bold tracking-tighter text-black`}>DRYP</span>
           </Link>
         </div>
+        
+
 
         <div className="mx-auto w-full max-w-[400px]">
           <div className="mb-10 text-left">
