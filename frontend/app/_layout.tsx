@@ -85,9 +85,9 @@ export default function RootLayout() {
         <StatusBar style="light" />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen 
-            name="liked-items" 
+            name="likes" 
             options={{ 
-              title: 'Liked Items',
+              title: 'Likes',
               headerShown: true,
               headerStyle: {
                 backgroundColor: '#ffffff',

@@ -108,7 +108,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         await AsyncStorage.setItem('user_data', JSON.stringify(user));
         await AsyncStorage.removeItem('guest_id');
 
-        const wishlistItems = await apiCall('/api/wishlist');
+          const wishlistItems = await apiCall('/api/likes');
         if (Array.isArray(wishlistItems)) {
           const validWishlistProducts = wishlistItems
             .filter(item => item && item.product)
@@ -156,7 +156,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         const user = JSON.parse(userData);
         set({ user, token, isAuthenticated: true, isGuest: false, guestId: null });
         
-        const wishlistItems = await apiCall('/api/wishlist');
+          const wishlistItems = await apiCall('/api/likes');
         if (Array.isArray(wishlistItems)) {
           const validWishlistProducts = wishlistItems
             .filter(item => item && item.product)

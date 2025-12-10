@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,7 +21,15 @@ import AnimatedLoadingScreen from '../../src/components/common/AnimatedLoadingSc
 import CustomAlert from '../../src/components/common/CustomAlert';
 import ProductDetailModal from '../../src/components/ProductDetailModal';
 
-export default function WishlistScreen() {
+export default function LikesScreen() {
+  // Redirect legacy /wishlist route to the new liked-items route
+  useEffect(() => {
+    try {
+      router.replace('/liked-items');
+    } catch (e) {
+      // ignore
+    }
+  }, []);
   const { items, setWishlist, removeFromWishlist } = useWishlistStore();
   const [loading, setLoading] = useState(true);
   const { addToCart } = useCartStore();
@@ -37,18 +45,18 @@ export default function WishlistScreen() {
   const fetchWishlist = useCallback(async () => {
     setLoading(true);
     try {
-      const likedProducts = await apiCall('/api/wishlist');
+      const likedProducts = await apiCall('/api/likes');
       if (Array.isArray(likedProducts)) {
         setWishlist(likedProducts);
       } else {
         setWishlist([]);
       }
     } catch (error) {
-      console.error('Failed to fetch wishlist:', error);
+      console.error('Failed to fetch liked items:', error);
       setAlertInfo({
         visible: true,
         title: 'Error',
-        message: 'Could not load your wishlist. Please try again later.',
+        message: 'Could not load your liked items. Please try again later.',
         buttons: [{ text: 'OK', onPress: () => setAlertInfo(null) }]
       });
       setWishlist([]);
@@ -68,7 +76,7 @@ export default function WishlistScreen() {
     setAlertInfo({
       visible: true,
       title: 'Add to Cart',
-      message: `Add "${item.title}" to your cart and remove from wishlist?`,
+      message: `Add "${item.title}" to your cart and remove from liked items?`,
       buttons: [
         { text: 'Cancel', style: 'cancel', onPress: () => setAlertInfo(null) },
         {
@@ -104,8 +112,8 @@ export default function WishlistScreen() {
   const handleRemoveFromWishlist = async (itemId: string, title: string) => {
     setAlertInfo({
       visible: true,
-      title: 'Remove from Wishlist',
-      message: `Are you sure you want to remove "${title}" from your wishlist?`,
+      title: 'Remove Like',
+      message: `Are you sure you want to remove "${title}" from your liked items?`,
       buttons: [
         { text: 'Cancel', style: 'cancel', onPress: () => setAlertInfo(null) },
         {
@@ -151,16 +159,16 @@ export default function WishlistScreen() {
   const mappedItems = mapProductsToItems(items);
 
   if (loading) {
-    return <AnimatedLoadingScreen text="Loading your wishlist..." />;
+    return <AnimatedLoadingScreen text="Loading liked items..." />;
   }
 
   if (items.length === 0) {
     return (
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
-        <View style={styles.header}><Text style={styles.headerTitle}>My Wishlist</Text></View>
+        <View style={styles.header}><Text style={styles.headerTitle}>Liked Items</Text></View>
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyTitle}>Your wishlist is empty</Text>
+          <Text style={styles.emptyTitle}>You haven't liked any items yet</Text>
           <Text style={styles.emptySubtitle}>Items you like will appear here.</Text>
           <Pressable onPress={() => router.push('/(tabs)/home')} style={styles.discoverButton}>
             <Text style={styles.discoverText}>Discover Items</Text>
@@ -183,7 +191,7 @@ export default function WishlistScreen() {
       <SafeAreaView style={styles.container}>
         <StatusBar barStyle="dark-content" backgroundColor="#ffffff" />
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>My Wishlist</Text>
+          <Text style={styles.headerTitle}>Liked Items</Text>
         </View>
         <FlatList
           data={mappedItems}
@@ -229,19 +237,21 @@ const styles = StyleSheet.create({
     fontFamily: 'Zaloga',
   },
   listContainer: {
-    padding: 16,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
   },
   itemContainer: {
     flexDirection: 'row',
     backgroundColor: '#ffffff',
     borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
+    padding: 12,
+    marginBottom: 12,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.08,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.04,
+    shadowRadius: 4,
+    elevation: 1,
   },
   itemImage: {
     width: 90,

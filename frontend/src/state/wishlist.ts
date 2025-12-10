@@ -17,12 +17,12 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
   setWishlist: (items) => set({ items }),
   addToWishlist: async (product) => {
     try {
-      const { apiCall } = require('../lib/api'); // LAZY REQUIRE
+      const { apiCall } = require('../lib/api'); // LAZY REQUIRE (uses likes API now)
       const existingItem = get().items.find(item => item._id === product._id);
       if (existingItem) return; // Don't add if it's already there
 
       set(state => ({ items: [...state.items, product] }));
-      await apiCall(`/api/wishlist/${product._id}`, {
+      await apiCall(`/api/likes/${product._id}`, {
         method: 'POST',
       });
     } catch (error) {
@@ -36,7 +36,7 @@ export const useWishlistStore = create<WishlistState>((set, get) => ({
     const originalItems = get().items;
     try {
       set(state => ({ items: state.items.filter(item => item._id !== productId) }));
-      await apiCall(`/api/wishlist/${productId}`, {
+      await apiCall(`/api/likes/${productId}`, {
         method: 'DELETE',
       });
     } catch (error) {

@@ -9,7 +9,7 @@ export function WishlistBadge() {
   const insets = useSafeAreaInsets();
 
   const handlePress = () => {
-    router.push('/wishlist');
+    router.push('/liked-items');
   };
 
   return (
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
   icon: {
     fontSize: 20,
-    color: '#FF8A80',
+    color: '#FF6B6B',
   },
   badge: {
     position: 'absolute',

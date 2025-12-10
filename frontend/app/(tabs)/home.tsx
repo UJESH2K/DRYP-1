@@ -96,7 +96,7 @@ export default function HomeScreen() {
                   {
                     translateY: swipeAnimations.nextCardAnimation.interpolate({
                       inputRange: [0.9, 1],
-                      outputRange: [40, 0],
+                      outputRange: [50, 0],
                     }),
                   },
                 ],
@@ -146,7 +146,8 @@ const styles = StyleSheet.create({
   cardStack: { 
     flex: 1, 
     alignItems: 'center', 
-    justifyContent: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 64,
   },
   undoContainer: {
     alignSelf: 'center',

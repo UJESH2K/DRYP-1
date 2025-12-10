@@ -182,7 +182,7 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, isVi
       setAlertInfo({
         visible: true,
         title: 'Error',
-        message: 'Could not update wishlist.',
+        message: 'Could not update likes.',
         buttons: [{ text: 'OK', onPress: () => setAlertInfo(null) }]
       });
     }
@@ -319,8 +319,8 @@ const ProductDetailModal: React.FC<ProductDetailModalProps> = ({ productId, isVi
           <View style={{ height: 20 }} />
 
           <View style={[styles.detailsActions, { paddingBottom: insets.bottom || 12 }]}>
-            <Pressable onPress={handleAddToWishlist} accessibilityRole="button" accessibilityLabel={isProductInWishlist ? "Remove from wishlist" : "Add to wishlist"} style={styles.wishlistIconWrapper}>
-              <Ionicons name={isProductInWishlist ? "bookmark" : "bookmark-outline"} size={32} color={isProductInWishlist ? "#000" : "#888"} />
+            <Pressable onPress={handleAddToWishlist} accessibilityRole="button" accessibilityLabel={isProductInWishlist ? "Remove like" : "Add like"} style={styles.wishlistIconWrapper}>
+              <Ionicons name={isProductInWishlist ? "heart" : "heart-outline"} size={32} color={isProductInWishlist ? "#FF6B6B" : "#888"} />
             </Pressable>
             <Pressable
               style={[
