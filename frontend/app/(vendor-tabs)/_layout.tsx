@@ -26,14 +26,20 @@ export default function VendorTabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#1a1a1a',
+        tabBarActiveTintColor: '#007aff',
+        tabBarInactiveTintColor: '#9ca3af',
         tabBarStyle: {
-          height: 60,
+          height: 64,
           paddingBottom: 10,
           paddingTop: 10,
+          backgroundColor: '#ffffff',
+          borderTopColor: '#e5e7eb',
+          borderTopWidth: 1,
         },
         tabBarLabelStyle: {
           fontFamily: 'Zaloga',
+          fontSize: 12,
+          letterSpacing: 0.2,
         },
       }}
     >

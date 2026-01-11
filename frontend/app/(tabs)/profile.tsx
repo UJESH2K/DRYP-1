@@ -61,6 +61,11 @@ export default function ProfileScreen() {
     { id: 'payment', title: 'Payment Methods', icon: <Ionicons name="card-outline" size={22} color="#333" />, onPress: () => router.push('/account/payment') },
   ];
   
+  const vendorItems = [
+    { id: 'vendorManage', title: 'Vendor: Manage Products', icon: <Ionicons name="pricetags-outline" size={22} color="#333" />, onPress: () => router.push('/vendor/manage') },
+    { id: 'vendorAdd', title: 'Vendor: Add Product', icon: <Ionicons name="add-circle-outline" size={22} color="#333" />, onPress: () => router.push('/vendor/add-product') },
+  ];
+  
   const preferencesItems = [
     { id: 'settings', title: 'General Settings', icon: <Ionicons name="settings-outline" size={22} color="#333" />, onPress: () => router.push('/account/settings') },
     { id: 'style', title: 'Style Preferences', icon: <Ionicons name="shirt-outline" size={22} color="#333" />, onPress: () => router.push('/account/style') },
@@ -116,6 +121,12 @@ export default function ProfileScreen() {
         <Section header="My Account">
           {accountItems.map((item, index) => <Row key={item.id} {...item} isFirst={index === 0} isLast={index === accountItems.length - 1} />)}
         </Section>
+        
+        {user?.role === 'vendor' && (
+          <Section header="Vendor Hub" footer="Manage and add products for shoppers.">
+            {vendorItems.map((item, index) => <Row key={item.id} {...item} isFirst={index === 0} isLast={index === vendorItems.length - 1} />)}
+          </Section>
+        )}
         
         <Section header="Preferences">
           {preferencesItems.map((item, index) => <Row key={item.id} {...item} isFirst={index === 0} isLast={index === preferencesItems.length - 1} />)}

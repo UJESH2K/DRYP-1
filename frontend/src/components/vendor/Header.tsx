@@ -16,9 +16,12 @@ export function VendorHeader({ title }: { title: string }) {
 
   return (
     <View style={styles.header}>
+      <View style={styles.brandMark}>
+        <Text style={styles.brandInitial}>DR</Text>
+      </View>
       <Text style={styles.headerTitle}>{title}</Text>
-      <Pressable onPress={handleLogout} style={styles.logoutButton}>
-        <Ionicons name="log-out-outline" size={28} color="#000" />
+      <Pressable onPress={handleLogout} style={styles.logoutButton} accessibilityLabel="Logout">
+        <Ionicons name="log-out-outline" size={24} color="#0f172a" />
       </Pressable>
     </View>
   );
@@ -27,19 +30,33 @@ export function VendorHeader({ title }: { title: string }) {
 const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#e0e0e0',
-    zIndex: 10,
+    borderBottomColor: '#e5e7eb',
+    gap: 12,
+  },
+  brandMark: {
+    width: 36,
+    height: 36,
+    borderRadius: 12,
+    backgroundColor: '#007aff',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  brandInitial: {
+    color: '#ffffff',
+    fontFamily: 'Zaloga',
+    fontSize: 16,
+    letterSpacing: 0.5,
   },
   headerTitle: {
-    fontSize: 28,
-    color: '#000',
-    letterSpacing: 1.5,
+    flex: 1,
+    fontSize: 22,
+    color: '#0f172a',
+    letterSpacing: 0.3,
     fontFamily: 'Zaloga',
   },
   logoutButton: {
